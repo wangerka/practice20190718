@@ -7,6 +7,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;
+import android.util.Log;
 
 public class MyRefreshLayout extends SwipeRefreshLayout {
 
@@ -23,17 +24,18 @@ public class MyRefreshLayout extends SwipeRefreshLayout {
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
-        int startX=0;
-        int startY=0;
+        float startX=0;
+        float startY=0;
         switch(ev.getAction()){
             case MotionEvent.ACTION_DOWN:
-                startX = (int) ev.getX();
-                startY = (int) ev.getY();
+                startX = ev.getX();
+                startY = ev.getY();
                 break;
             case MotionEvent.ACTION_MOVE:
-                int distancdX = Math.abs((int) ev.getX() - startX);
-                int distancdY = Math.abs((int) ev.getY() - startY);
+                float distancdX = Math.abs(ev.getX() - startX);
+                float distancdY = Math.abs(ev.getY() - startY);
                 if(distancdX > mTouchSlop && distancdX > distancdY){
+                    Log.i("gejun","move move move!!!!!");
                     return false;
                 }
                 break;

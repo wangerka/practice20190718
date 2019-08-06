@@ -24,6 +24,8 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -35,25 +37,7 @@ import java.util.List;
 
 import static com.bumptech.glide.request.target.Target.SIZE_ORIGINAL;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-
-//    private TextView text;
-//    Button button1;
-//    Button button2;
-//    Button button3;
-//    ImageView image,image1;
-//    ProgressBar bar;
-//
-//    RequestQueue queue;
-//    StringRequest request;
-//    ImageRequest imageRequest;
-//    ImageLoader loader;
-//    ImageLoader.ImageListener listener;
-//
-//    String url1 = "https://ws1.sinaimg.cn/large/0065oQSqgy1fwgzx8n1syj30sg15h7ew.jpg";
-//    String url2 = "http://ww1.sinaimg.cn/large/0065oQSqly1g2pquqlp0nj30n00yiq8u.jpg";
-//
-//    int i =0;
+public class MainActivity extends AppCompatActivity implements View.OnClickListener,OnImageReady{
     int screenWidth;
 
     RecyclerView photosRecyclerView;
@@ -64,6 +48,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main1);
+
+
+//        Glide.with(this).asBitmap().load("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1565082845867&di=8febe4285563fe12fa23d2bf0f20636f&imgtype=0&src=http%3A%2F%2F365jia.cn%2Fuploads%2F13%2F0523%2F519e13069d6f1.jpg").into(new SimpleTarget<Bitmap>() {
+//            @Override
+//            public void onResourceReady(Bitmap bitmap, Transition<? super Bitmap> transition) {
+//                int width = bitmap.getWidth();
+//                int height = bitmap.getHeight();
+//                Log.d("gejun","width " + width); //900px
+//                Log.d("gejun","height " + height); //500px
+//            }
+//        });
 
         photosRecyclerView = findViewById(R.id.photos_recyclerivew);
         photosRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL));
@@ -83,7 +78,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 Log.i("gejun",""+url);
                                 photoUrls.add(url);
                             }
-                            photosRecyclerView.setAdapter(new PhotosAdapter(photoUrls));
+                            PhotosAdapter adapter = new PhotosAdapter(photoUrls);
+                            adapter.setImageReadyListener(MainActivity.this);
+                            photosRecyclerView.setAdapter(adapter);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -98,99 +95,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         queue.add(request);
 
-//        text = findViewById(R.id.text);
-//        button1 = findViewById(R.id.btn1);
-//        button1.setOnClickListener(this);
-//        button2 = findViewById(R.id.btn2);
-//        button3 = findViewById(R.id.btn3);
-//        button2.setOnClickListener(this);
-//        button3.setOnClickListener(this);
-//        image = findViewById(R.id.image);
-//        image1 = findViewById(R.id.image1);
-//        bar = findViewById(R.id.progress);
-//
         screenWidth = getResources().getDisplayMetrics().widthPixels;
-//        text.setText(screenWidth+"");
-//
-//
-//        Glide.with(this)
-//                .load(url1)
-//                .override(screenWidth/2,SIZE_ORIGINAL)
-//                .into(image);
-//
-//        Glide.with(this)
-//                .load(url2)
-//                .override(screenWidth/2,SIZE_ORIGINAL)
-//                .into(image1);
-//
-//
-//        String url = "https://www.baidu.com";
-//        request = new StringRequest(url,
-//                new Response.Listener<String>() {
-//            @Override
-//            public void onResponse(String response) {
-//                text.setText(response);
-//                showResult(false);
-//            }
-//        }, new Response.ErrorListener() {
-//            @Override
-//            public void onErrorResponse(VolleyError error) {
-//                text.setText(error.getMessage());
-//                showResult(false);
-//            }
-//        });
-//
-//
-//        imageRequest = new ImageRequest(
-//                url1,
-//                new Response.Listener<Bitmap>() {
-//                    @Override
-//                    public void onResponse(Bitmap response) {
-//                        showResult(true);
-//                        image.setImageBitmap(response);
-//                    }
-//                },
-//                0,
-//                0,
-//                ImageView.ScaleType.CENTER,
-//                Bitmap.Config.RGB_565,
-//                new Response.ErrorListener() {
-//                    @Override
-//                    public void onErrorResponse(VolleyError error) {
-//                        showResult(false);
-//                        text.setText(error.getMessage());
-//                    }
-//                });
-//
-//        loader = new ImageLoader(queue, new ImageLoader.ImageCache() {
-//            @Override
-//            public Bitmap getBitmap(String url) {
-//                return null;
-//            }
-//
-//            @Override
-//            public void putBitmap(String url, Bitmap bitmap) {
-//
-//            }
-//        });
-//
-//        listener = ImageLoader.getImageListener(image,
-//                R.drawable.ic_launcher_background,
-//                R.drawable.ic_launcher_foreground);
-//
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                while(true){
-//                    try {
-//                        Thread.sleep(2000);
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                    }
-//                    Log.i("gejun","count " + i++);
-//                }
-//            }
-//        }).start();
     }
 
     class PhotosAdapter extends RecyclerView.Adapter<PhotosAdapter.PhotosVH>{
@@ -205,6 +110,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         List<String> urls;
+        private OnImageReady l;
 
         public PhotosAdapter(List<String> urls) {
             this.urls = urls;
@@ -218,46 +124,41 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         @Override
-        public void onBindViewHolder(@NonNull PhotosVH viewHolder, int i) {
-            Glide.with(MainActivity.this)
-                    .load(urls.get(i))
-                    .override(screenWidth/2,SIZE_ORIGINAL)
-                    .into(viewHolder.p);
+        public void onBindViewHolder(@NonNull final PhotosVH viewHolder, int i) {
+            final String url = urls.get(i);
+            Glide.with(MainActivity.this).asBitmap().load(url).into(new SimpleTarget<Bitmap>() {
+                @Override
+                public void onResourceReady(Bitmap bitmap, Transition<? super Bitmap> transition) {
+                    int w = bitmap.getWidth();
+                    int h = bitmap.getHeight();
+                    l.setIamge(w,h, viewHolder.p, url);
+                }
+            });
+
+
+
         }
 
         @Override
         public int getItemCount() {
             return urls.size();
         }
+
+        public void setImageReadyListener(OnImageReady listener){
+            l = listener;
+        }
     }
 
     @Override
     public void onClick(View view) {
         int id = view.getId();
-//        switch (id){
-//            case R.id.btn1:
-//                showProgressBar();
-//                queue.add(request);
-//                break;
-//            case R.id.btn2:
-//                showProgressBar();
-//                queue.add(imageRequest);
-//                break;
-//            case R.id.btn3:
-//                loader.get(url2, listener);
-//                break;
-//        }
     }
 
-//    private void showProgressBar(){
-//        bar.setVisibility(View.VISIBLE);
-//        image.setVisibility(View.GONE);
-//        text.setVisibility(View.GONE);
-//    }
-//
-//    private void showResult(boolean showImage){
-//        bar.setVisibility(View.GONE);
-//        image.setVisibility(showImage ? View.VISIBLE : View.GONE);
-//        text.setVisibility(showImage ? View.GONE : View.VISIBLE);
-//    }
+    @Override
+    public void setIamge(int w, int h, ImageView iv, String url) {
+        Glide.with(MainActivity.this)
+                .load(url)
+                .override(screenWidth/2,screenWidth*h/w*2)
+                .into(iv);
+    }
 }
