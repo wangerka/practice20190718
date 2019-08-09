@@ -1,10 +1,12 @@
 package com.example.netredclock;
 
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.animation.LinearInterpolator;
 
 import java.util.Calendar;
 
@@ -14,6 +16,8 @@ public class ClockView extends View {
     private float mHDegreen=0;
     private float mMDegreen=0;
     private float mSDegreen=0;
+
+    private ValueAnimator animator;
 
     public ClockView(Context context) {
         this(context,null);
@@ -29,6 +33,10 @@ public class ClockView extends View {
         paint = new Paint();
         paint.setTextSize(32);
         paint.setAntiAlias(true);
+
+        animator = ValueAnimator.ofFloat(6,0);
+        animator.setDuration(1000);
+        animator.setInterpolator(new LinearInterpolator());
     }
 
     @Override
@@ -100,13 +108,35 @@ public class ClockView extends View {
 
     public void updateClock(){
         Calendar c = Calendar.getInstance();
-        int h = c.get(Calendar.HOUR_OF_DAY);
-        int m = c.get(Calendar.MINUTE);
-        int s = c.get(Calendar.SECOND);
+        final int h = c.get(Calendar.HOUR_OF_DAY);
+        final int m = c.get(Calendar.MINUTE);
+        final int s = c.get(Calendar.SECOND);
 
         mHDegreen = -360/12*(h-1);
         mMDegreen = -360/60*m;
         mSDegreen = -360/60*s;
+
+        final float currentH = mHDegreen;
+        final float currentM = mMDegreen;
+        final float currentS = mSDegreen;
+
+        animator.removeAllUpdateListeners();
+        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                float v = (float)valueAnimator.getAnimatedValue();
+                if(m==0 && s ==0) {
+                    mHDegreen = currentH + v * 5;
+                }
+                if(s==0) {
+                    mMDegreen = currentM + v;
+                }
+                mSDegreen = currentS+v;
+
+                invalidate();
+            }
+        });
+        animator.start();
 
         invalidate();
     }
