@@ -53,16 +53,18 @@ public class ClockView extends View {
         int week = c.get(Calendar.DAY_OF_WEEK);
         int minute = c.get(Calendar.MINUTE);
         canvas.drawText(month+"月"+day+"日\n",-50,0,paint);
-        canvas.drawText(hour+"点"+minute+"分"+Util.getWeek(week),-50,30,paint);
+        canvas.drawText(hour+"点"+minute+"分"+Util.getWeek(week),-100,30,paint);
     }
 
     private void drawHours(Canvas canvas,float degreen) {
         canvas.save();
         canvas.rotate(degreen);
-        for(int i=1;i<=12;i++){
+        for(int i=0;i<12;i++){
             canvas.save();
-            canvas.rotate(360/12*(i-1));
-            canvas.drawText(i+"点",getWidth()*0.15f,0,paint);
+            float d = 360/12*i;
+            canvas.rotate(d);
+            paint.setAlpha((d+degreen) ==0?255:100);
+            canvas.drawText((i+1)+"点",getWidth()*0.15f,0,paint);
             canvas.restore();
         }
         canvas.restore();
@@ -73,8 +75,10 @@ public class ClockView extends View {
         canvas.rotate(degreen);
         for(int i=0;i<60;i++){
             canvas.save();
-            canvas.rotate(360/60*i);
-            if(i != 0) canvas.drawText(i+"分",getWidth()*0.25f,0,paint);
+            float d = 360/60*i;
+            canvas.rotate(d);
+            paint.setAlpha((d+degreen) ==0?255:100);
+            canvas.drawText(i+"分",getWidth()*0.25f,0,paint);
             canvas.restore();
         }
         canvas.restore();
@@ -85,8 +89,10 @@ public class ClockView extends View {
         canvas.rotate(degreen);
         for(int i=0;i<60;i++){
             canvas.save();
-            canvas.rotate(360/60*i);
-            if(i!=0) canvas.drawText(i+"秒",getWidth()*0.32f,0,paint);
+            float d = 360/60*i;
+            canvas.rotate(d);
+            paint.setAlpha((d+degreen) ==0?255:100);
+            canvas.drawText(i+"秒",getWidth()*0.32f,0,paint);
             canvas.restore();
         }
         canvas.restore();
